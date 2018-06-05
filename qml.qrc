@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>MyRoute.qml</file>
+        <file>Marker.qml</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file>mapMarker.png</file>
+    </qresource>
+</RCC>
