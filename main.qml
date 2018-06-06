@@ -3,8 +3,10 @@ import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
 import QtLocation 5.9
 import QtPositioning 5.8
+import Utilites 1.0
 
 ApplicationWindow {
+    id: mainWindow
     visible: true
     width: 640
     height: 480
@@ -22,26 +24,33 @@ ApplicationWindow {
             value: "5q7pDy4mOjasekDDiVdfaQ"
         }
     }
+//    property Route route1//: routeManager.route1
+//    property Route route2//: routeManager.route2
 
     Map {
         id: map
         anchors.fill: parent
         plugin: mapPlugin
 
-        property Route route1
-        property Route route2
+        RouteManager {
+            id: routeManager
+
+        }
+
+        Route {
+            id: route1
+            path: routeManager.route1
+        }
+
+        Route {
+            id: route2
+            path: routeManager.route2
+        }
 
         DropArea {
             id: dropArea
             anchors.fill: parent
         }
-
-//        function setRoute(startCoord, finishCoord) {
-//            if (routeModel1.query.waypoints.length >= 2)
-//                routeModel1.query.clearWaypoints();
-//            routeModel1.query.addWaypoint(startCoord)
-//            routeModel1.query.addWaypoint(finishCoord)
-//        }
 
         RouteQuery {
             id: query1
@@ -55,19 +64,24 @@ ApplicationWindow {
             property bool isFirstRoute
             onStatusChanged: {
                 if (isFirstRoute) {
-                    if (routeModel1.status == RouteModel.Ready)
-                        map.route1 = routeModel1.get(0)
+                    if (routeModel1.status == RouteModel.Ready) {
+                        console.log("asdasdas", routeModel1.get(0))
+                        routeManager.route1.path = routeModel1.get(0).path
+//                        route1.path = routeModel1.get(0).path
+                    }
                 }
                 else {
-                    if (routeModel1.status == RouteModel.Ready)
-                        map.route2 = routeModel1.get(0)
+                    if (routeModel1.status == RouteModel.Ready) {
+//                        route2.path = routeModel1.get(0).path
+                        routeManager.route2.path = routeModel1.get(0).path
+                    }
                 }
             }
         }
 
         MapRoute {
             id: mapRoute1
-            route: map.route1
+            route: route1
             line.color: "blue"
             line.width: 5
             smooth: true
@@ -76,7 +90,7 @@ ApplicationWindow {
 
         MapRoute {
             id: mapRoute2
-            route: map.route2
+            route: route2
             line.color: "green"
             line.width: 5
             smooth: true
@@ -143,8 +157,9 @@ ApplicationWindow {
         }
         Button {
             onClicked: {
-                console.log(mapRoute1.route)
-                console.log(mapRoute2.route)
+                console.log(routeManager.route1.path)
+                console.log(routeManager.route2.path)
+                routeManager.intersect()
             }
         }
     }
