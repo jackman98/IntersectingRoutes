@@ -1,50 +1,82 @@
 #include "routeManager.h"
 #include <QDebug>
+#include <QQmlApplicationEngine>
+#include <QList>
+#include <QVariant>
+#include <QVariantList>
+#include "lineSegment.h"
 
-RouteManager::RouteManager(QObject *parent) : QObject(parent), m_route1(nullptr), m_route2(nullptr)
+RouteManager::RouteManager(QObject *parent) : QObject(parent), m_pathRoute1(nullptr), m_pathRoute2(nullptr)
 {
 
 }
 
-QGeoPath *RouteManager::route1() const
+QObject *RouteManager::route1() const
 {
-	return m_route1;
+	return m_qmlRoute1;
 }
 
-QGeoPath *RouteManager::route2() const
+QObject *RouteManager::route2() const
 {
-	return m_route2;
+	return m_qmlRoute2;
 }
 
-void RouteManager::setRoute1(QGeoPath *route1)
+void RouteManager::setRoute1(QObject *route1)
 {
-	if (m_route1 == route1)
+	if (m_qmlRoute1 == route1)
 		return;
 
-	delete m_route1;
-	m_route1 = new QGeoPath(*route1);
-	qDebug() << m_route1;
-//	m_route1->setBounds(route1->bounds());
-//	m_route1->setDistance(route1->distance());
-//	m_route1->setFirstRouteSegment(route1->firstRouteSegment());
-//	m_route1->setPath(route1->path());
-//	m_route1->setRequest(route1->request());
+	m_qmlRoute1 = route1;
 
-	emit route1Changed(m_route1);
+	delete m_pathRoute1;
+	m_pathRoute1 = getPath(m_qmlRoute1);
+	emit route1Changed(m_qmlRoute1);
 }
 
-void RouteManager::setRoute2(QGeoPath *route2)
+void RouteManager::setRoute2(QObject *route2)
 {
-	if (m_route2 == route2)
+	if (m_qmlRoute2 == route2)
 		return;
 
-	delete m_route2;
-//	m_route2 = new QGeoPath(*route2);
-	qDebug() << m_route2;
-	emit route2Changed(m_route2);
+	m_qmlRoute2 = route2;
+	delete m_pathRoute2;
+	m_pathRoute2 = getPath(m_qmlRoute2);
+	emit route2Changed(m_qmlRoute2);
+}
+
+QList<QGeoCoordinate> *RouteManager::getPath(QObject *object)
+{
+	QList<QGeoCoordinate> *coords = new QList<QGeoCoordinate>();
+	QVariantList list = qvariant_cast<QVariantList>(object->property("path"));
+	for (auto &v : list) {
+		coords->append(qvariant_cast<QGeoCoordinate>(v));
+	}
+	qDebug() << coords;
+	return coords;
 }
 
 bool RouteManager::intersect()
 {
-	qDebug() << m_route1 << m_route2;
+
+	m_pathRoute1 = getPath(m_qmlRoute1);
+	m_pathRoute2 = getPath(m_qmlRoute2);
+
+	QList<LineSegment> segments1;
+	for (int i = 0; i < m_pathRoute1->size() - 1; ++i) {
+		segments1.append(LineSegment(m_pathRoute1->at(i), m_pathRoute1->at(i + 1)));
+	}
+
+	QList<LineSegment> segments2;
+	for (int i = 0; i < m_pathRoute2->size() - 1; ++i) {
+		segments2.append(LineSegment(m_pathRoute2->at(i), m_pathRoute2->at(i + 1)));
+	}
+
+	for (int i = 0; i < segments1.size(); ++i) {
+		for (int j = 0; j < segments2.size(); ++j) {
+			if (LineSegment::isCross(segments1.at(i), segments2.at(j))) {
+				return true;
+			}
+		}
+	}
+	return false;
 }

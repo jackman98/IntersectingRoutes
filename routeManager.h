@@ -2,32 +2,35 @@
 #define UTILITES_H
 
 #include <QObject>
-#include <QGeoPath>
+#include <QGeoRoute>
 
 class RouteManager : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(QGeoPath* route1 READ route1 WRITE setRoute1 NOTIFY route1Changed)
-	Q_PROPERTY(QGeoPath* route2 READ route2 WRITE setRoute2 NOTIFY route2Changed)
+	Q_PROPERTY(QObject* route1 READ route1 WRITE setRoute1 NOTIFY route1Changed)
+	Q_PROPERTY(QObject* route2 READ route2 WRITE setRoute2 NOTIFY route2Changed)
 
-	QGeoPath* m_route1;
-	QGeoPath* m_route2;
+	QObject* m_qmlRoute1;
+	QObject* m_qmlRoute2;
+	QList<QGeoCoordinate> *m_pathRoute1;
+	QList<QGeoCoordinate> *m_pathRoute2;
+
+	QList<QGeoCoordinate> *getPath(QObject *object);
 
 public:
 	explicit RouteManager(QObject *parent = nullptr);
 
-	QGeoPath *route1() const;
-	QGeoPath *route2() const;
+	QObject* route1() const;
+	QObject* route2() const;
 
 signals:
-
-	void route1Changed(QGeoPath* route1);
-	void route2Changed(QGeoPath* route2);
+	void route1Changed(QObject* route1);
+	void route2Changed(QObject* route2);
 
 public slots:
-	void setRoute1(QGeoPath *route1);
-	void setRoute2(QGeoPath *route2);
 	bool intersect();
+	void setRoute1(QObject* route1);
+	void setRoute2(QObject* route2);
 };
 
 #endif // UTILITES_H

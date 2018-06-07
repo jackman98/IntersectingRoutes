@@ -7,6 +7,7 @@ import Utilites 1.0
 
 ApplicationWindow {
     id: mainWindow
+    objectName: "mainmani"
     visible: true
     width: 640
     height: 480
@@ -34,17 +35,18 @@ ApplicationWindow {
 
         RouteManager {
             id: routeManager
-
+            route1: route1
+            route2: route2
         }
 
         Route {
             id: route1
-            path: routeManager.route1
+//            path: routeManager.route1
         }
 
         Route {
             id: route2
-            path: routeManager.route2
+//            path: routeManager.route2
         }
 
         DropArea {
@@ -65,15 +67,12 @@ ApplicationWindow {
             onStatusChanged: {
                 if (isFirstRoute) {
                     if (routeModel1.status == RouteModel.Ready) {
-                        console.log("asdasdas", routeModel1.get(0))
-                        routeManager.route1.path = routeModel1.get(0).path
-//                        route1.path = routeModel1.get(0).path
+                        route1.path = routeModel1.get(0).path
                     }
                 }
                 else {
                     if (routeModel1.status == RouteModel.Ready) {
-//                        route2.path = routeModel1.get(0).path
-                        routeManager.route2.path = routeModel1.get(0).path
+                        route2.path = routeModel1.get(0).path
                     }
                 }
             }
@@ -154,12 +153,10 @@ ApplicationWindow {
                 owner: finishMarker2
 
             }
-        }
-        Button {
-            onClicked: {
-                console.log(routeManager.route1.path)
-                console.log(routeManager.route2.path)
-                routeManager.intersect()
+            Button {
+                onClicked: {
+                    console.log(routeManager.intersect())
+                }
             }
         }
     }
